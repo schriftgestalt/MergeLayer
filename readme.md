@@ -1,5 +1,5 @@
 # Merge Layer
-This plugins helps to combine to masters on export. E.g.: when you have a solid and a highlight layer and you like to have a font that combines both. 
+This plugin combines two masters on export. E.g.: when you have a solid and a highlight layer and you like to have a font that combines both. 
 The highlight layer with the solid layer in the background:
 
 ![Outlines](SampleFile/outlines.png)
