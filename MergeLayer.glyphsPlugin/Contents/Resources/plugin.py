@@ -15,34 +15,36 @@ import objc
 from GlyphsApp import *
 from GlyphsApp.plugins import *
 
-class MergeLayer(GeneralPlugin):
-	def settings(self):
-		GSCallbackHandler.addCallback_forOperation_(self, "GSPrepareLayerCallback")
+class MergeLayer(FilterWithoutDialog):
 
-	def processLayer_originalGlyph_withInstance_(self, layer, glyph, instance):
+	def processGlyph_withArguments_(self, glyph, arguments):
+		print("__arguments", arguments)
+
 		try:
-			addLayerName = instance.customParameters["MergeLayer"]
-			if not addLayerName:
-				return
-		
+			sourceMasterName = arguments[1]
+			targetMasterName = arguments[2] # instance.customParameters["MergeLayer"]
 			font = glyph.parent
-			master = font.fontMasterForName_(addLayerName)
-			if not master:
+			sourceMaster = font.fontMasterForName_(sourceMasterName)
+			targetMaster = font.fontMasterForName_(targetMasterName)
+			if not sourceMaster or not targetMaster:
+				print("!master")
 				return
-			layer.removeOverlap()
-			addLayer = glyph.layers[master.id]
-			for addPath in addLayer.paths:
-				copyPath = addPath.copy()
-				copyPath.reverse()
-				layer.paths.append(copyPath)
-			for addComp in addLayer.components:
-				copyComp = addComp.copy()
-				copyComp.reverse()
-				layer.components.append(copyComp)
+			sourceLayer = glyph.layers[sourceMaster.id]
+			if len(sourceLayer.shapes) == 0:
+				return
+			targetLayer = glyph.layers[targetMaster.id]
+			targetLayer.removeOverlap()
+
+			for copyShape in sourceLayer.shapes:
+				copyShape = copyShape.copy()
+				copyShape.reverse()
+				targetLayer.shapes.append(copyShape)
+			print("done")
 		except Exception as e:
 			import traceback
-			print traceback.format_exc()
+			print(traceback.format_exc())
 
+	@objc.python_method
 	def __file__(self):
 		"""Please leave this method unchanged"""
 		return __file__
